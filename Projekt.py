@@ -117,6 +117,24 @@ class App(tk.Tk):
         self.test_button = tk.Button(self, text="TEST", command=self.test)
         self.test_button.pack(side="left", padx=10)
 
+        self.add_button = tk.Button(self, text="Add Product", command=self.test)
+        self.add_button.pack(side="left", padx=10)
+        
+        self.edit_button = tk.Button(self, text="Edit Product", command=self.test)
+        self.edit_button.pack(side="left", padx=10)
+        
+        self.view_button = tk.Button(self, text="View Product", command=self.view_product)
+        self.view_button.pack(side="left", padx=10)
+        
+        self.delete_button = tk.Button(self, text="Delete Product", command=self.test)
+        self.delete_button.pack(side="left", padx=10)
+        
+        self.save_button = tk.Button(self, text="Save", command=self.save_data)
+        self.save_button.pack(side="left", padx=10)
+
+        self.quit_button = tk.Button(self, text="Quit", command=self.quit_app)
+        self.quit_button.pack(side="left", padx=10)
+
     def update_inventory_view(self):
         self.inventory_text.delete(1.0, tk.END)
         self.inventory_text.insert(tk.END, view_inventory(self.products))
@@ -124,12 +142,56 @@ class App(tk.Tk):
     def test(self):
         TestWindow(self)
 
+    #def add_product(self):
+        #AddProductWindow(self)
+
+   # def edit_product(self):
+        #EditProductWindow(self)
+
+    def view_product(self):
+        ViewProductWindow(self)
+
+   # def delete_product(self):
+       # DeleteProductWindow(self)
+
+    def save_data(self):
+        save_data('db_products.csv', self.products)
+        messagebox.showinfo("Save Data", "Data successfully saved!")
+
+    def quit_app(self):
+        save_data('db_products.csv', self.products)
+        self.destroy()
+
+
 class TestWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Test Window")
         self.geometry("400x300")
         self.parent = parent
+
+class ViewProductWindow(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("View Product")
+        self.geometry("400x200")
+        self.parent = parent
+
+        tk.Label(self, text="Enter Product ID").grid(row=0, column=0, padx=10, pady=10)
+        self.id_entry = tk.Entry(self)
+        self.id_entry.grid(row=0, column=1)
+
+        self.view_button = tk.Button(self, text="View", command=self.view_product)
+        self.view_button.grid(row=1, column=0, columnspan=2, pady=10)
+
+        self.product_label = tk.Label(self, text="", wraplength=300)
+        self.product_label.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+    def view_product(self):
+        product_id = int(self.id_entry.get()) - 1
+        result = view_product(self.parent.products, product_id)
+        self.product_label.config(text=result)
+
 
 if __name__ == "__main__":
     app = App()
