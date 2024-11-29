@@ -5,6 +5,12 @@ from time import sleep
 import tkinter as tk
 from tkinter import messagebox
 
+# Projekt.py: De e en projekt som använder tkinter, med förra uppgift som bas.
+
+__author__  = "Ott Rudolf Pöld"
+__version__ = "4.0.0"
+__email__   = "Ott.Pold@elev.ga.ntig.se"
+
 def load_data(filename): 
     products = [] 
     
@@ -104,29 +110,26 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Product Inventory Management")
-        self.geometry("1000x600")
+        self.geometry("1200x600")
         self.products = load_data('db_products.csv')
         
         self.create_widgets()
         self.update_inventory_view()
 
     def create_widgets(self):
-        self.inventory_text = tk.Text(self, wrap="none", width=120, height=20)
+        self.inventory_text = tk.Text(self, wrap="none", width=141, height=20)
         self.inventory_text.pack(pady=10)
 
-        self.test_button = tk.Button(self, text="TEST", command=self.test)
-        self.test_button.pack(side="left", padx=10)
-
-        self.add_button = tk.Button(self, text="Add Product", command=self.test)
+        self.add_button = tk.Button(self, text="Add Product", command=self.add_product)
         self.add_button.pack(side="left", padx=10)
         
-        self.edit_button = tk.Button(self, text="Edit Product", command=self.test)
+        self.edit_button = tk.Button(self, text="Edit Product", command=self.edit_product)
         self.edit_button.pack(side="left", padx=10)
         
         self.view_button = tk.Button(self, text="View Product", command=self.view_product)
         self.view_button.pack(side="left", padx=10)
         
-        self.delete_button = tk.Button(self, text="Delete Product", command=self.test)
+        self.delete_button = tk.Button(self, text="Delete Product", command=self.delete_product)
         self.delete_button.pack(side="left", padx=10)
         
         self.save_button = tk.Button(self, text="Save", command=self.save_data)
@@ -139,20 +142,17 @@ class App(tk.Tk):
         self.inventory_text.delete(1.0, tk.END)
         self.inventory_text.insert(tk.END, view_inventory(self.products))
 
-    def test(self):
-        TestWindow(self)
+    def add_product(self):
+        AddProductWindow(self)
 
-    #def add_product(self):
-        #AddProductWindow(self)
-
-   # def edit_product(self):
-        #EditProductWindow(self)
+    def edit_product(self):
+        EditProductWindow(self)
 
     def view_product(self):
         ViewProductWindow(self)
 
-   # def delete_product(self):
-       # DeleteProductWindow(self)
+    def delete_product(self):
+        DeleteProductWindow(self)
 
     def save_data(self):
         save_data('db_products.csv', self.products)
@@ -162,13 +162,83 @@ class App(tk.Tk):
         save_data('db_products.csv', self.products)
         self.destroy()
 
-
-class TestWindow(tk.Toplevel):
+class AddProductWindow(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
-        self.title("Test Window")
+        self.title("Add Product")
         self.geometry("400x300")
         self.parent = parent
+
+        tk.Label(self, text="Name").grid(row=0, column=0, padx=10, pady=10)
+        self.name_entry = tk.Entry(self)
+        self.name_entry.grid(row=0, column=1)
+
+        tk.Label(self, text="Description").grid(row=1, column=0, padx=10, pady=10)
+        self.desc_entry = tk.Entry(self)
+        self.desc_entry.grid(row=1, column=1)
+
+        tk.Label(self, text="Price").grid(row=2, column=0, padx=10, pady=10)
+        self.price_entry = tk.Entry(self)
+        self.price_entry.grid(row=2, column=1)
+
+        tk.Label(self, text="Quantity").grid(row=3, column=0, padx=10, pady=10)
+        self.quantity_entry = tk.Entry(self)
+        self.quantity_entry.grid(row=3, column=1)
+
+        tk.Button(self, text="Add", command=self.add_product).grid(row=4, column=0, columnspan=2, pady=10)
+
+    def add_product(self):
+        name = self.name_entry.get()
+        desc = self.desc_entry.get()
+        price = float(self.price_entry.get())
+        quantity = int(self.quantity_entry.get())
+        add_product(self.parent.products, name, desc, price, quantity)
+        self.parent.update_inventory_view()
+        self.destroy()
+
+class EditProductWindow(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Edit Product")
+        self.geometry("400x300")
+        self.parent = parent
+
+        tk.Label(self, text="Enter Product ID").grid(row=0, column=0, padx=10, pady=10)
+        self.id_entry = tk.Entry(self)
+        self.id_entry.grid(row=0, column=1)
+
+        tk.Label(self, text="New Name").grid(row=1, column=0, padx=10, pady=10)
+        self.name_entry = tk.Entry(self)
+        self.name_entry.grid(row=1, column=1)
+
+        tk.Label(self, text="New Description").grid(row=2, column=0, padx=10, pady=10)
+        self.desc_entry = tk.Entry(self)
+        self.desc_entry.grid(row=2, column=1)
+
+        tk.Label(self, text="New Price").grid(row=3, column=0, padx=10, pady=10)
+        self.price_entry = tk.Entry(self)
+        self.price_entry.grid(row=3, column=1)
+
+        tk.Label(self, text="New Quantity").grid(row=4, column=0, padx=10, pady=10)
+        self.quantity_entry = tk.Entry(self)
+        self.quantity_entry.grid(row=4, column=1)
+
+        tk.Button(self, text="Edit", command=self.edit_product).grid(row=5, column=0, columnspan=2, pady=10)
+
+    def edit_product(self):
+        product_id = int(self.id_entry.get()) - 1
+        name = self.name_entry.get()
+        desc = self.desc_entry.get()
+        price = float(self.price_entry.get())
+        quantity = int(self.quantity_entry.get())
+        
+        for product in self.parent.products:
+            if product["id"] == product_id:
+                change_product(product, name, desc, price, quantity)
+                self.parent.update_inventory_view()
+                self.destroy()
+                return
+        messagebox.showerror("Error", "Product not found!")
 
 class ViewProductWindow(tk.Toplevel):
     def __init__(self, parent):
@@ -191,6 +261,27 @@ class ViewProductWindow(tk.Toplevel):
         product_id = int(self.id_entry.get()) - 1
         result = view_product(self.parent.products, product_id)
         self.product_label.config(text=result)
+
+class DeleteProductWindow(tk.Toplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Delete Product")
+        self.geometry("400x200")
+        self.parent = parent
+
+        tk.Label(self, text="Enter Product ID").grid(row=0, column=0, padx=10, pady=10)
+        self.id_entry = tk.Entry(self)
+        self.id_entry.grid(row=0, column=1)
+
+        self.delete_button = tk.Button(self, text="Delete", command=self.delete_product)
+        self.delete_button.grid(row=1, column=0, columnspan=2, pady=10)
+
+    def delete_product(self):
+        product_id = int(self.id_entry.get()) - 1
+        result = remove_product(self.parent.products, product_id)
+        self.parent.update_inventory_view()
+        messagebox.showinfo("Delete Product", result)
+        self.destroy()
 
 
 if __name__ == "__main__":
