@@ -4,6 +4,7 @@ import locale
 from time import sleep
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 
 # Projekt.py: De e en projekt som använder tkinter, med förra uppgift som bas.
 
@@ -117,8 +118,21 @@ class App(tk.Tk):
         self.update_inventory_view()
 
     def create_widgets(self):
-        self.inventory_text = tk.Text(self, wrap="none", width=141, height=20)
-        self.inventory_text.pack(pady=10)
+        self.tree = ttk.Treeview(self, columns=("ID", "Name", "Description", "Price", "Quantity"), show='headings')
+        self.tree.heading("ID", text="ID")
+        self.tree.heading("Name", text="Name")
+        self.tree.heading("Description", text="Description")
+        self.tree.heading("Price", text="Price")
+        self.tree.heading("Quantity", text="Quantity")
+
+        self.tree.column("ID", width=50)
+        self.tree.column("Name", width=200)
+        self.tree.column("Description", width=400)
+        self.tree.column("Price", width=100)
+        self.tree.column("Quantity", width=100)
+
+        self.tree.pack(fill="both", expand=True, pady=20)
+
 
         self.add_button = tk.Button(self, text="Add Product", command=self.add_product)
         self.add_button.pack(side="left", padx=10)
@@ -139,8 +153,12 @@ class App(tk.Tk):
         self.quit_button.pack(side="left", padx=10)
 
     def update_inventory_view(self):
-        self.inventory_text.delete(1.0, tk.END)
-        self.inventory_text.insert(tk.END, view_inventory(self.products))
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+        for product in self.products:
+            product_id = product["id"] + 1
+            self.tree.insert("", "end", values=(product_id, product["name"], product["desc"], locale.currency(product["price"], grouping=True), product["quantity"]))
+
 
     def add_product(self):
         AddProductWindow(self)
