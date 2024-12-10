@@ -113,17 +113,19 @@ class App(tk.Tk):
         self.title("Product Inventory Management")
         self.geometry("1200x600")
         self.products = load_data('db_products.csv')
-        
+        self.sort_by = None
+        self.sort_asc = True
+
         self.create_widgets()
         self.update_inventory_view()
 
     def create_widgets(self):
         self.tree = ttk.Treeview(self, columns=("ID", "Name", "Description", "Price", "Quantity"), show='headings')
-        self.tree.heading("ID", text="ID")
-        self.tree.heading("Name", text="Name")
-        self.tree.heading("Description", text="Description")
-        self.tree.heading("Price", text="Price")
-        self.tree.heading("Quantity", text="Quantity")
+        self.tree.heading("ID", text="ID", command=lambda: self.sort_treeview("ID", False))
+        self.tree.heading("Name", text="Name", command=lambda: self.sort_treeview("Name", False))
+        self.tree.heading("Description", text="Description", command=lambda: self.sort_treeview("Description", False))
+        self.tree.heading("Price", text="Price", command=lambda: self.sort_treeview("Price", True))
+        self.tree.heading("Quantity", text="Quantity", command=lambda: self.sort_treeview("Quantity", False))
 
         self.tree.column("ID", width=50)
         self.tree.column("Name", width=200)
@@ -159,6 +161,19 @@ class App(tk.Tk):
             product_id = product["id"] + 1
             self.tree.insert("", "end", values=(product_id, product["name"], product["desc"], locale.currency(product["price"], grouping=True), product["quantity"]))
 
+    def sort_treeview(self, col, is_numeric):
+        if self.sort_by == col:
+            self.sort_asc = not self.sort_asc
+        else:
+            self.sort_by = col
+            self.sort_asc = True
+
+        if is_numeric:
+            self.products.sort(key=lambda x: float(x[col.lower()]), reverse=not self.sort_asc)
+        else:
+            self.products.sort(key=lambda x: x[col.lower()], reverse=not self.sort_asc)
+        
+        self.update_inventory_view()
 
     def add_product(self):
         AddProductWindow(self)
