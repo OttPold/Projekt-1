@@ -13,6 +13,15 @@ __version__ = "4.0.0"
 __email__   = "Ott.Pold@elev.ga.ntig.se"
 
 def load_data(filename): 
+    if not os.path.exists(filename):
+        with open(filename, 'w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=["id", "name", "desc", "price", "quantity"])
+            writer.writeheader()
+            writer.writerows([
+                {"id": 0, "name": "Placeholder Product 1", "desc": "Placeholder Description 1", "price": 10.0, "quantity": 10},
+                {"id": 1, "name": "Placeholder Product 2", "desc": "Placeholder Description 2", "price": 20.0, "quantity": 20},
+            ])
+        print(f"Created default database file: {filename}")
     products = [] 
     
     with open(filename, 'r') as file:
